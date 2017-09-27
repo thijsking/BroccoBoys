@@ -22,7 +22,7 @@ print('Socket now listening')
 
 conn, addr = sock.accept()
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cv2.ocl.setUseOpenCL(False)
 fgbg = cv2.createBackgroundSubtractorMOG2()
 
@@ -65,9 +65,14 @@ while True:
                 print("x=", cx, "y=", cy)
                 array = [cx, cy]
                 rx = int(cx*-2.1+1017.4)
+                if rx>565:
+                    rx = 565
+                if rx<130:
+                    rx = 130
 
-        message = bytes(rx)
+        message = bytes(str(rx),'utf8')
         conn.send(message)
+        message = ''
 
     cv2.imshow('Original', frame)
     cv2.imshow('fgbg', mask)

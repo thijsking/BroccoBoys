@@ -1,5 +1,14 @@
 import cv2
 import numpy as np
+import socket
+
+HOST = '192.168.125.4'
+PORT = 8004
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((HOST,PORT))
+sock.listen(5)
+conn, addr = sock.accept()
 
 cap = cv2.VideoCapture(0)
 cv2.ocl.setUseOpenCL(False)
@@ -43,6 +52,10 @@ while True:
                 cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
                 print("x=", cx, "y=", cy)
                 array = [cx, cy]
+                rx=(cx*-2.1+1017.4)
+
+        message = bytes(rx,'utf8')
+        conn.send(message)
 
     cv2.imshow('Original', frame)
     cv2.imshow('fgbg', mask)
@@ -54,3 +67,5 @@ while True:
 
 cap.release()
 cv2.destroyAllWindows()
+def pixelvalue():
+    return rx

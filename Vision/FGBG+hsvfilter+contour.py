@@ -64,9 +64,9 @@ while True:
                 cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
                 print("x=", cx, "y=", cy)
                 array = [cx, cy]
-                rx=(cx*-2.1+1017.4)
+                rx = int(cx*-2.1+1017.4)
 
-        message = bytes(rx,'utf8')
+        message = bytes(rx)
         conn.send(message)
 
     cv2.imshow('Original', frame)

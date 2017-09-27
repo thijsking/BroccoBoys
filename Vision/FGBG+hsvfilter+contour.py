@@ -2,12 +2,24 @@ import cv2
 import numpy as np
 import socket
 
-HOST = '192.168.125.4'
-PORT = 8004
+HOST = '192.168.125.4'		# Symbolic name, meaning all available interfaces
+PORT = 8004  				# Arbitrary non-privileged port
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind((HOST,PORT))
-sock.listen(5)
+print('Socket created')
+
+# Bind socket to local host and port
+
+sock.bind((HOST, PORT))
+print('Socket now bind')
+
+
+print('Socket bind complete')
+
+# Start listening on socket
+sock.listen(10)
+print('Socket now listening')
+
 conn, addr = sock.accept()
 
 cap = cv2.VideoCapture(0)

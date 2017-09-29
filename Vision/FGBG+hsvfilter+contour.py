@@ -6,6 +6,7 @@ from threading import Thread
 HOST = '192.168.125.4'		# Symbolic name, meaning all available interfaces
 PORT = 8004  				# Arbitrary non-privileged port
 ReadyToWrite = 0
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print('Socket created')
 
@@ -28,6 +29,7 @@ def WaitForReady():
     print('entered function')
     while True:
         #print('looping')
+        print('reading check :',ReadyToWrite)
         if (ReadyToWrite == 0):
             #print('aan het lezen')
             received = conn.recv(256)
@@ -35,9 +37,10 @@ def WaitForReady():
             if received.decode() == 'ready':
                 ReadyToWrite = 1
                 print ('ready received')
+                received = ''
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cv2.ocl.setUseOpenCL(False)
 fgbg = cv2.createBackgroundSubtractorMOG2()
 
@@ -97,7 +100,8 @@ while True:
                     message = bytes(str(rx),'utf8')
                     conn.send(message)
                     message = ''
-                    ReadToWrite = 0
+                    ReadyToWrite = 0
+                    print('sending check :',ReadyToWrite)
 
     cv2.imshow('Original', frame)
     cv2.imshow('fgbg', mask)

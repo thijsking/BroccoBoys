@@ -38,8 +38,8 @@ def WaitForReady():
 
 
 cap = cv2.VideoCapture(0)
-cv2.ocl.setUseOpenCL(False)
-fgbg = cv2.createBackgroundSubtractorMOG2()
+#cv2.ocl.setUseOpenCL(False)
+#fgbg = cv2.createBackgroundSubtractorMOG2()
 
 Threadje = Thread(target=WaitForReady)
 Threadje.start()

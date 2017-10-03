@@ -8,20 +8,21 @@ MODULE MainModule
     PROC main()
         CreateSocket;
         WHILE (TRUE) DO
+            SendData;
             TPWrite "start loop";
             ReceiceData;
-    		MoveL [[203.02,21.66,-882.94],[0,0.143581,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;
-    		MoveL [[XPos,4.7,-880.93],[0,0.143576,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;
-            MoveL [[XPos,4.7,-1020.93],[0,0.143576,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, fine, tool0;
+    		MoveL [[203.02,21.66,-882.94],[0,0.143581,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z50, tool0;
+    		MoveL [[XPos,4.7,-880.93],[0,0.143576,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z50, tool0;
+            MoveL [[XPos,4.7,-1020.93],[0,0.143576,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, fine, tool0;
             SET do_Gripper;
             WaitTime 1;
-            MoveL [[XPos,4.7,-880.93],[0,0.143576,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;
-            MoveL [[203.02,21.66,-882.94],[0,0.143581,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;
-            MoveL [[-500.53,155.26,-959.63],[0,0.143567,-0.989641,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;
-            MoveL [[-500.52,155.25,-1100.88],[0,0.143591,-0.989637,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, fine, tool0;
+            MoveL [[XPos,4.7,-880.93],[0,0.143576,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z50, tool0;
+            MoveL [[203.02,21.66,-882.94],[0,0.143581,-0.989639,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z50, tool0;
+            MoveL [[-500.53,155.26,-959.63],[0,0.143567,-0.989641,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z50, tool0;
+            MoveL [[-500.52,155.25,-1100.88],[0,0.143591,-0.989637,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, fine, tool0;
             RESET do_Gripper;
             WaitTime 1;
-            MoveL [[-500.53,155.26,-959.63],[0,0.143567,-0.989641,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;
+            MoveL [[-500.53,155.26,-959.63],[0,0.143567,-0.989641,0],[0,1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z50, tool0;
             XPos := 0;
         ENDWHILE
 	ENDPROC
@@ -33,17 +34,25 @@ MODULE MainModule
     ENDPROC
     
     PROC ReceiceData()
-        VAR string StrReceived;
+        VAR string StrReceived:= "";
         VAR string xdata;
         VAR string ydata;
         VAR bool bOK;
         VAR num DataLen:=3;
         
         SocketReceive sockDev\Str:=StrReceived;
+        TPWrite "real data:";
+        TPWrite StrReceived;
         xdata :=StrPart(StrReceived,1,DataLen);
         TPWrite "received data ";
         TPWrite xdata;
         bOK := StrToVal(xdata,XPos);
+    ENDPROC
+    
+    PROC SendData()
+       !VAR string message:= "ready";
+       SocketSend sockDev\Str:= "ready";
+       TPWrite "Send message";
     ENDPROC
         
 ENDMODULE

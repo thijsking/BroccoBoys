@@ -1,0 +1,68 @@
+MODULE MainModule
+	VAR socketdev sockDev;
+    
+	CONST robtarget Pos1:=[[203,4,-880],[0,0.815179,-0.579209,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST robtarget AboveDropPlace:=[[-500.53,155.26,-959.63],[0,0.815179,-0.579209,0],[0,0,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+        
+    PERS num XPosDiff;
+    PERS num YPosDiff;
+    PERS num Angle;
+    
+
+     PROC main()
+        CreateSocket;
+        WHILE (TRUE) DO
+            SendData;
+            TPWrite "start loop";
+            ReceiceData;
+            MoveL (Pos1),v500,z50,tool0;
+            MoveL RelTool(Pos1,XPosDiff,0,0\Rz:=Angle),v100,z30,tool0;
+            MoveL RelTool(Pos1,XPosDiff,0,200\Rz:=Angle),v100,fine,tool0;
+            SET do_Gripper;
+            WaitTime 0.5;
+            MoveL RelTool(Pos1,XPosDiff,0,0\Rz:=Angle),v100,z30,tool0;
+            MoveL (Pos1),v500,z100,tool0;
+            MoveL (AboveDropPlace),v500,z50,tool0;
+            MoveL RelTool(AboveDropPlace,0,0,150),v100,fine,tool0;
+            RESET do_Gripper;
+            WaitTime 0.5;
+            MoveL(AboveDropPlace),v100,z50,tool0; 
+    
+        ENDWHILE
+	ENDPROC
+        
+    PROC CreateSocket()
+        SocketCreate sockDev;
+        SocketConnect sockDev , "192.168.125.4",8004;   
+        TPWrite "Trying to connect.....SPANNEND";
+    ENDPROC
+    
+    PROC ReceiceData()
+        VAR string StrReceived:= "";
+        VAR string xdata;
+        VAR string angleData;
+        VAR bool bOK;
+        VAR num Delimiter;
+        
+        SocketReceive sockDev\Str:=StrReceived;
+        TPWrite "real data:";
+        TPWrite StrReceived;
+         
+        Delimiter := StrFind(StrReceived,1,"@");
+        xdata := StrPart(StrReceived,1,Delimiter-1);
+        TPWrite xdata;
+        angleData := StrPart(StrReceived,Delimiter+1,StrLen(StrReceived));
+        TPWrite angleData;
+        
+        bOK := StrToVal(xdata,XPosDiff);
+        bOK := StrToVal(angleData,Angle);
+        
+        XPosDiff := XPosDiff - 203;
+    ENDPROC
+    
+    PROC SendData()
+       VAR string message := "ready";
+       SocketSend sockDev\Str := message;
+       TPWrite "Send message";
+    ENDPROC
+ENDMODULE

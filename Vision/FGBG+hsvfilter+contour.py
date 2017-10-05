@@ -3,20 +3,18 @@ import numpy as np
 import socket
 from threading import Thread
 
-HOST = '192.168.125.4'		# Symbolic name, meaning all available interfaces
-PORT = 8004  				# Arbitrary non-privileged port
+HOST = '192.168.125.4'		
+PORT = 8004  				
 ReadyToWrite = 0
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print('Socket created')
-
-# Bind socket to local host and port
 
 sock.bind((HOST, PORT))
 print('Socket now bind')
 
 print('Socket bind complete')
 
-# Start listening on socket
 sock.listen(10)
 print('Socket now listening')
 
@@ -27,25 +25,23 @@ def WaitForReady():
     global conn
     print('entered function')
     while True:
-        #print('looping')
+        print('reading check :',ReadyToWrite)
         if (ReadyToWrite == 0):
-            #print('aan het lezen')
             received = conn.recv(256)
             print (received.decode())
             if received.decode() == 'ready':
                 ReadyToWrite = 1
                 print ('ready received')
+                received = ''
+
 
 
 cap = cv2.VideoCapture(0)
-#cv2.ocl.setUseOpenCL(False)
-#fgbg = cv2.createBackgroundSubtractorMOG2()
 
 Threadje = Thread(target=WaitForReady)
 Threadje.start()
 
 while True:
-    #print('in main while')
     _, frame = cap.read()
     frame = frame[150:380,0:450]
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
@@ -64,26 +60,17 @@ while True:
     mask = cv2.dilate(mask, kernel, iterations=5)
 
 
-    fgmask = fgbg.apply(mask)
-
     _, contours, hierarchy = cv2.findContours(mask   , cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
-        #print('contouyrs')
         cnt = contours[0]
         area = cv2.contourArea(cnt)
         if area > 0:
             cv2.drawContours(frame, contours, -1, (0, 255, 255), 3)
             M = cv2.moments(cnt)
             if area > 500:
-                #print('grote area')
-                #hull = cv2.convexHull(cnt)
-                #epsilon = 0.1 * cv2.arcLength(cnt, True)
-                #approx = cv2.approxPolyDP(cnt, epsilon, True)
-                #cv2.drawContours(frame,[approx],0,(0,0,255),2)
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
                 cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
-                #print("x=", cx, "y=", cy)
                 array = [cx, cy]
                 rx = int(cx*-2.1+1017.4)
                 if rx>565:
@@ -91,13 +78,12 @@ while True:
                 if rx<130:
                     rx = 130
 
-                #print('voor check')
                 if(ReadyToWrite == 1):
-                    #print(str(rx))
                     message = bytes(str(rx),'utf8')
                     conn.send(message)
                     message = ''
-                    ReadToWrite = 0
+                    ReadyToWrite = 0
+                    print('sending check :',ReadyToWrite)
 
     cv2.imshow('Original', frame)
     cv2.imshow('fgbg', mask)

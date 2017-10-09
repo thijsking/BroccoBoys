@@ -70,6 +70,7 @@ while True:
             if area > 500:
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
+                print('x: ',cx,' --y: ',cy)
                 cv2.circle(frame, (cx, cy), 10, (0, 0, 255), -1)
                 array = [cx, cy]
                 rx = int(cx*-2.1+1017.4)

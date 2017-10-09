@@ -7,7 +7,7 @@ cap = cv2.VideoCapture(0)
 
 while True:
     _, frame = cap.read()
-    frame = frame[220:350,0:450]
+    frame = frame[230:345,0:450]
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
 
     lower_red_stam = np.array([21, 51, 105])
@@ -51,25 +51,13 @@ while True:
             cv2.drawContours(frame, contours_stam, -1, (0, 255, 255), 3)
             M = cv2.moments(cnt)
             if area > 50:
-                # print('grote area')
-                # hull = cv2.convexHull(cnt)
-                # epsilon = 0.1 * cv2.arcLength(cnt, True)
-                # approx = cv2.approxPolyDP(cnt, epsilon, True)
-                # cv2.drawContours(frame,[approx],0,(0,0,255),2)
                 rect = cv2.minAreaRect(cnt)
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
-                cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
                 X_stam = int(M['m10'] / M['m00'])
                 Y_stam = int(M['m01'] / M['m00'])
                 cv2.circle(frame, (X_stam, Y_stam), 10, (0, 0, 255), -1)
-                #ellipse = cv2.fitEllipse(cnt)
-                #cv2.ellipse(frame, ellipse, (0, 255, 0), 2)
-                #rows, cols = img.shape[:2]
-                #[vx, vy, x, y] = cv2.fitLine(cnt, cv2.DIST_L2, 0, 0.01, 0.01)
-                #lefty = int((-x * vy / vx) + y)
-                #righty = int(((cols - x) * vy / vx) + y)
-                #cv2.line(frame, (cols - 1, righty), (0, lefty), (0, 255, 0), 2)
+
 
     _, contours_broc, hierarchy_broc = cv2.findContours(mask_broc, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours_broc:
@@ -80,11 +68,6 @@ while True:
             cv2.drawContours(frame, contours_broc, -1, (0, 255, 255), 3)
             M = cv2.moments(cnt)
             if area > 700:
-                # print('grote area')
-                # hull = cv2.convexHull(cnt)
-                # epsilon = 0.1 * cv2.arcLength(cnt, True)
-                # approx = cv2.approxPolyDP(cnt, epsilon, True)
-                # cv2.drawContours(frame,[approx],0,(0,0,255),2)
                 X_broc = int(M['m10'] / M['m00'])
                 Y_broc = int(M['m01'] / M['m00'])
                 cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)

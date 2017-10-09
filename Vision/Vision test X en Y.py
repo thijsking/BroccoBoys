@@ -7,7 +7,7 @@ cap = cv2.VideoCapture(0)
 
 while True:
     _, frame = cap.read()
-    frame = frame[230:345,0:450]
+    frame = frame[235:335,0:450]
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
 
     lower_red_stam = np.array([21, 51, 105])
@@ -71,24 +71,25 @@ while True:
                 cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
                 # print("x=", cx, "y=", cy)
                 # array = [cx, cy]
-                # rx = int(cx * -2.1 + 1017.4)
-                # if rx > 565:
-                #     rx = 565
-                # if rx < 130:
-                #     rx = 130
+                rx = int(X_broc * -2.64 + 1212.84)
+                ry = int(Y_broc * 3.12 - 197.32)
+                if rx > 565:
+                    rx = 565
+                if rx < 130:
+                    rx = 130
 
-    if(X_stam > X_broc):
-        DeltaX = X_stam - X_broc
-    else:
-        DeltaX = X_broc - X_broc
-    if (Y_stam > Y_broc):
-        DeltaY = Y_stam - Y_broc
-    else:
-        DeltaX = Y_broc - Y_broc
-
-    if (DeltaX != 0 and DeltaY != 0):
-        Alpha = math.atan(DeltaY/DeltaX)
-        print(Alpha)
+    # if(X_stam > X_broc):
+    #     DeltaX = X_stam - X_broc
+    # else:
+    #     DeltaX = X_broc - X_broc
+    # if (Y_stam > Y_broc):
+    #     DeltaY = Y_stam - Y_broc
+    # else:
+    #     DeltaX = Y_broc - Y_broc
+    #
+    # if (DeltaX != 0 and DeltaY != 0):
+    #     Alpha = math.atan(DeltaY/DeltaX)
+    #     print(Alpha)
 
 
     cv2.imshow('Original', frame)

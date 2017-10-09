@@ -3,22 +3,22 @@ import numpy as np
 import socket
 from threading import Thread
 
-HOST = '192.168.125.4'		
-PORT = 8004  				
-ReadyToWrite = 0
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print('Socket created')
-
-sock.bind((HOST, PORT))
-print('Socket now bind')
-
-print('Socket bind complete')
-
-sock.listen(10)
-print('Socket now listening')
-
-conn, addr = sock.accept()
+# HOST = '192.168.125.4'
+# PORT = 8004
+# ReadyToWrite = 0
+#
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# print('Socket created')
+#
+# sock.bind((HOST, PORT))
+# print('Socket now bind')
+#
+# print('Socket bind complete')
+#
+# sock.listen(10)
+# print('Socket now listening')
+#
+# conn, addr = sock.accept()
 
 def WaitForReady():
     global ReadyToWrite
@@ -38,12 +38,12 @@ def WaitForReady():
 
 cap = cv2.VideoCapture(0)
 
-Threadje = Thread(target=WaitForReady)
-Threadje.start()
+# Threadje = Thread(target=WaitForReady)
+# Threadje.start()
 
 while True:
     _, frame = cap.read()
-    frame = frame[150:380,0:450]
+    frame = frame[220:350,0:450]
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
 
     lower_red = np.array([35, 17, 0])
@@ -78,12 +78,12 @@ while True:
                 if rx<130:
                     rx = 130
 
-                if(ReadyToWrite == 1):
-                    message = bytes(str(rx),'utf8')
-                    conn.send(message)
-                    message = ''
-                    ReadyToWrite = 0
-                    print('sending check :',ReadyToWrite)
+                # if(ReadyToWrite == 1):
+                #     message = bytes(str(rx),'utf8')
+                #     conn.send(message)
+                #     message = ''
+                #     ReadyToWrite = 0
+                #     print('sending check :',ReadyToWrite)
 
     cv2.imshow('Original', frame)
     cv2.imshow('fgbg', mask)

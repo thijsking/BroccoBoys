@@ -7,7 +7,7 @@ cap = cv2.VideoCapture(0)
 
 while True:
     _, frame = cap.read()
-    frame = frame[150:380,0:450]
+    frame = frame[220:350,0:450]
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
 
     lower_red_stam = np.array([21, 51, 105])
@@ -27,7 +27,7 @@ while True:
     upper_red_broc = np.array([87, 255, 255])
 
     mask_broc = cv2.inRange(hsv, lower_red_broc, upper_red_broc)
-    res = cv2.bitwise_and(frame, frame, mask=mask_broc)
+    res_broc = cv2.bitwise_and(frame, frame, mask=mask_broc)
 
     kernel = np.ones((5, 5), np.uint8)
     mask_broc = cv2.dilate(mask_broc, kernel, iterations=1)
@@ -42,7 +42,7 @@ while True:
     Y_broc = 0
     DeltaX = 0
     DeltaY = 0
-    _, contours_stam, hierarchy = cv2.findContours(mask_stam, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours_stam, hierarchy_stam = cv2.findContours(mask_stam, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours_stam:
         # print('contouyrs')
         cnt = contours_stam[0]
@@ -71,46 +71,50 @@ while True:
                 #righty = int(((cols - x) * vy / vx) + y)
                 #cv2.line(frame, (cols - 1, righty), (0, lefty), (0, 255, 0), 2)
 
-        _, contours_broc, hierarchy = cv2.findContours(mask_broc, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if contours_broc:
-            # print('contouyrs')
-            cnt = contours_broc[0]
-            area = cv2.contourArea(cnt)
-            if area > 0:
-                cv2.drawContours(frame, contours_broc, -1, (0, 255, 255), 3)
-                M = cv2.moments(cnt)
-                if area > 500:
-                    # print('grote area')
-                    # hull = cv2.convexHull(cnt)
-                    # epsilon = 0.1 * cv2.arcLength(cnt, True)
-                    # approx = cv2.approxPolyDP(cnt, epsilon, True)
-                    # cv2.drawContours(frame,[approx],0,(0,0,255),2)
-                    X_broc = int(M['m10'] / M['m00'])
-                    Y_broc = int(M['m01'] / M['m00'])
-                    cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
-                    # print("x=", cx, "y=", cy)
-                    # array = [cx, cy]
-                    # rx = int(cx * -2.1 + 1017.4)
-                    # if rx > 565:
-                    #     rx = 565
-                    # if rx < 130:
-                    #     rx = 130
+    _, contours_broc, hierarchy_broc = cv2.findContours(mask_broc, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if contours_broc:
+        # print('contouyrs')
+        cnt = contours_broc[0]
+        area = cv2.contourArea(cnt)
+        if area > 0:
+            cv2.drawContours(frame, contours_broc, -1, (0, 255, 255), 3)
+            M = cv2.moments(cnt)
+            if area > 700:
+                # print('grote area')
+                # hull = cv2.convexHull(cnt)
+                # epsilon = 0.1 * cv2.arcLength(cnt, True)
+                # approx = cv2.approxPolyDP(cnt, epsilon, True)
+                # cv2.drawContours(frame,[approx],0,(0,0,255),2)
+                X_broc = int(M['m10'] / M['m00'])
+                Y_broc = int(M['m01'] / M['m00'])
+                cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
+                # print("x=", cx, "y=", cy)
+                # array = [cx, cy]
+                # rx = int(cx * -2.1 + 1017.4)
+                # if rx > 565:
+                #     rx = 565
+                # if rx < 130:
+                #     rx = 130
 
     if(X_stam > X_broc):
-        deltaX = X_stam - X_broc
+        DeltaX = X_stam - X_broc
     else:
-        deltaX = X_broc - X_broc
+        DeltaX = X_broc - X_broc
     if (Y_stam > Y_broc):
-        deltaY = Y_stam - Y_broc
+        DeltaY = Y_stam - Y_broc
     else:
-        deltaX = Y_broc - Y_broc
+        DeltaX = Y_broc - Y_broc
 
-    Alpha = math.atan(deltaY/deltaX)
+    if (DeltaX != 0 and DeltaY != 0):
+        Alpha = math.atan(DeltaY/DeltaX)
+        print(Alpha)
 
 
     cv2.imshow('Original', frame)
     cv2.imshow('fgbg_stam', mask_stam)
     cv2.imshow('res', res_stam)
+    cv2.imshow('fgbg_broc', mask_broc)
+    cv2.imshow('res_broc', res_broc)
 
 
 

@@ -39,6 +39,8 @@ def main() :
         ThreadRobotRead = threading.Thread(target=WaitForReady)
         ThreadRobotRead.start()
 
+    DeltaY = 0
+    DeltaX = 0
     while True:
         if (X_stam > X_broc):
             DeltaX = X_stam - X_broc
@@ -62,7 +64,6 @@ def main() :
                     conn.send(message)
                     message = ''
                     ReadyToWrite = 0
-                    # print('sending check :',ReadyToWrite)
                 else:
                     print('Broccoli out of range')
 
@@ -82,11 +83,8 @@ def GetCameraImage():
     Sem = False
     if(FrameCounter % 2 == 0):
         _, Frame = cap.read()
-        cv2.imshow('Original', Frame)
     FrameCounter = FrameCounter + 1
     Sem = True
-
-    k = cv2.waitKey(30)
 
     return Frame
 
@@ -127,6 +125,7 @@ def BrocVision():
 
         cv2.imshow('fgbg_broc', mask_broc)
         cv2.imshow('res_broc', res_broc)
+        cv2.imshow('Original_ broc', frame)
         k = cv2.waitKey(30)
 
 def StamVision():
@@ -164,6 +163,7 @@ def StamVision():
 
         cv2.imshow('fgbg_stam', mask_stam)
         cv2.imshow('res', res_stam)
+        cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
 
 def WaitForReady():

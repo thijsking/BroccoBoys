@@ -112,5 +112,5 @@ while True:
     k = cv2.waitKey(30)
     if k == 27:
         break
- vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv 
+
 

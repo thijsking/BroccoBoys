@@ -5,17 +5,29 @@ import socket
 from threading import Thread
 import threading
 
+HOST = '192.168.125.4'
+PORT = 8004
 Real_X = 0
 Real_Y = 0
 X_stam = 0
 Y_stam = 0
 X_broc = 0
 Y_broc = 0
-#Sem = threading.Semaphore()
 Sem = True
 ReadyToWrite = 0
 RobotConnected = False
 cap = cv2.VideoCapture(0)
+FrameCounter = 0
+_, Frame = cap.read()
+
+if (RobotConnected):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print('Socket created')
+    sock.bind((HOST, PORT))
+    print('Socket bind complete')
+    sock.listen(10)
+    print('Socket now listening')
+    conn, addr = sock.accept()
 
 def main() :
     global Real_X, Real_Y, X_stam, Y_stam, X_broc, Y_broc, RobotConnected, ReadyToWrite,cap
@@ -63,25 +75,20 @@ def main() :
 
 
 def GetCameraImage():
-    global Sem, cap
-    #Sem.acquire()
-    print("entered function")
+    global Sem, cap, FrameCounter, Frame
+
     while Sem == False:
         pass
     Sem = False
-    print("false")
-    #cap = cv2.VideoCapture(0)
-    _, frame = cap.read()
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
-    hsv = cv2.medianBlur(hsv, 11)
-    cv2.imshow('Original', frame)
-    #cap.release()
-    #data = [hsv,frame]
+    if(FrameCounter % 2 == 0):
+        _, Frame = cap.read()
+        cv2.imshow('Original', Frame)
+    FrameCounter = FrameCounter + 1
     Sem = True
-    print("true")
-    #Sem.release()
-    print (frame)
-    return frame
+
+    k = cv2.waitKey(30)
+
+    return Frame
 
 
 def BrocVision():
@@ -89,7 +96,6 @@ def BrocVision():
 
     while True:
         frame = GetCameraImage()
-        print("broc has data")
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
         hsv = cv2.medianBlur(hsv, 11)
 
@@ -116,24 +122,18 @@ def BrocVision():
                     X_broc = int(M['m10'] / M['m00'])
                     Y_broc = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
-                    # print("x=", cx, "y=", cy)
-                    # array = [cx, cy]
                     Real_X = int(X_broc * -2.64 + 1212.84)
                     Real_Y = int(Y_broc * 3.12 - 197.32)
-                    # if Real_X > 565:
-                    #     Real_X = 565
-                    # if Real_X < 100:
-                    #     Real_X = 100
 
-        #cv2.imshow('fgbg_broc', mask_broc)
-        #cv2.imshow('res_broc', res_broc)
+        cv2.imshow('fgbg_broc', mask_broc)
+        cv2.imshow('res_broc', res_broc)
+        k = cv2.waitKey(30)
 
 def StamVision():
     global X_stam, Y_stam
 
     while True:
         frame = GetCameraImage()
-        print("stam has data")
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
         hsv = cv2.medianBlur(hsv, 11)
 
@@ -162,8 +162,9 @@ def StamVision():
                     Y_stam = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_stam, Y_stam), 10, (0, 0, 255), -1)
 
-       # cv2.imshow('fgbg_stam', mask_stam)
-        #cv2.imshow('res', res_stam)
+        cv2.imshow('fgbg_stam', mask_stam)
+        cv2.imshow('res', res_stam)
+        k = cv2.waitKey(30)
 
 def WaitForReady():
     global ReadyToWrite
@@ -178,6 +179,7 @@ def WaitForReady():
                 ReadyToWrite = 1
                 print ('ready received')
                 received = ''
+
 
 if __name__=="__main__":
     main()

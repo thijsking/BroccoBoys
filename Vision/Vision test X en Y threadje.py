@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import math
 import socket
-from threading import Thread
 import threading
 
 Real_X = 0

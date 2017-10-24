@@ -1,0 +1,60 @@
+MODULE Listen
+    VAR socketdev sockDev;
+    PERS bool getCoord;
+    PERS num XPos;
+    PERS num YPos;
+    PERS num Angle;
+    
+    PROC Main()
+        !CreateSocket;
+        WHILE (TRUE) DO
+            WaitUntil getCoord;
+            SendData;
+            ReceiceData;
+            getCoord := FALSE;
+            TPWrite("false again");
+        ENDWHILE
+    ENDPROC
+    
+    PROC CreateSocket()
+        TPWrite "Trying to connect.....SPANNEND";
+        SocketCreate sockDev;
+        SocketConnect sockDev , "192.168.125.4",8004;   
+        TPWrite "Connected";
+    ENDPROC
+    
+    PROC ReceiceData()
+        TPWrite("Receiving");
+!        VAR string StrReceived:= "";
+!        VAR string xdata;
+!        VAR string ydata;
+!        VAR string angleData;
+!        VAR bool bOK;
+!        VAR num Delimiter1;
+!        VAR num Delimiter2;
+        
+!        SocketReceive sockDev\Str:=StrReceived;
+!        TPWrite "real data:";
+!        TPWrite StrReceived;
+         
+!        Delimiter1 := StrFind(StrReceived,1,"@");
+!        Delimiter2 := StrFind(StrReceived,1,"$");
+!        xdata := StrPart(StrReceived,1,Delimiter1-1);
+!        TPWrite xdata;
+!        ydata := StrPart(StrReceived,Delimiter1+1,Delimiter2-1);
+!        TPWrite ydata;
+!        angleData := StrPart(StrReceived, Delimiter2+1, StrLen(StrReceived) - Delimiter2);
+        
+!        bOK := StrToVal(xdata,XPos);
+!        bOK := StrToVal(ydata,YPos);
+!        bOk := StrToVal(angleData, Angle);
+    ENDPROC
+    
+     PROC SendData()
+         TPWrite("Sending");
+!       VAR string message:= "ready";
+!       SocketSend sockDev\Str:= message;
+!       TPWrite "Send message";
+    ENDPROC
+    
+ENDMODULE

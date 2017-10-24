@@ -1,0 +1,23 @@
+MODULE MainModule
+    !low z is 985
+        PERS bool getCoord := FALSE;
+        PERS num XPos := 0;
+        PERS num YPos := 0;
+        PERS num Angle := 0;
+        
+	PROC main()
+        WHILE (TRUE) DO
+    		MoveL [[234.06,-60,-889.86],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v300, z100, tool0;    !start
+    		MoveL [[457.07,-60,-950],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v300, z50, tool0;    !begin laag
+    		MoveL [[-184.28,-60,-950],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z80, tool0;   !einde laag
+            SET do_Gripper;
+    		MoveL [[-259.95,-60,-870.83],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v300, z100, tool0;   !einde
+    		MoveL [[188.51,359.64,-950.55],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z50, tool0;     !above drop
+            MoveL [[188.52,359.67,-1062.58],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v300, fine, tool0;    !drop
+    		RESET do_Gripper;
+            MoveL [[188.51,359.64,-950.55],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v300, z50, tool0;     !above drop
+    		getCoord := TRUE;
+        ENDWHILE
+        
+	ENDPROC
+ENDMODULE

@@ -46,27 +46,7 @@ def main() :
         ThreadRobotRead = threading.Thread(target=WaitForReady)
         ThreadRobotRead.start()
 
-    DeltaY = 0
-    DeltaX = 0
-    while True:
-        if (X_stam > X_broc):
-            DeltaX = X_stam - X_broc
-        else:
-            DeltaX = X_broc - X_stam
-        if (Y_stam > Y_broc):
-            DeltaY = Y_stam - Y_broc
-        else:
-            DeltaX = Y_broc - Y_stam
-
-        if (DeltaX != 0 and DeltaY != 0):
-            Alpha = (math.atan(DeltaY / DeltaX) * (180/3.1415))
-
-            #print("DeltaX=" + str(DeltaX))
-            #print("DeltaY=" + str(DeltaY))
-            print("Y=" + str(Y_broc))
-            #print("X=" + str(X_broc))
-            #print(Y_broc)
-
+    while True :
         if(RobotConnected):
             if (ReadyToWrite == 1):
                 TimeStamp = time.time()
@@ -140,15 +120,15 @@ def BrocVision():
                     Real_X = int(X_broc * -2.64 + 1212.84)
                     Real_Y = int(Y_broc * 3.12 - 197.32)
         if Y_brocs:
-            if abs([Y_brocs[0] - Y_broc) > 5:
+            if abs(Y_brocs[0] - Y_broc) > 5:
                 X_brocs.append(X_broc)
                 Y_brocs.append(Y_broc)
-                Alpha_brocs.append(Alpha)
+                Alpha_brocs.append(CalculateAngle())
                 Time_brocs.append(TimeStamp)
         else:
             X_brocs.append(X_broc)
             Y_brocs.append(Y_broc)
-            Alpha_brocs.append(Alpha)
+            Alpha_brocs.append(CalculateAngle())
             Time_brocs.append(TimeStamp)
 
         cv2.imshow('fgbg_broc', mask_broc)
@@ -193,6 +173,25 @@ def StamVision():
         cv2.imshow('res', res_stam)
         cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
+
+def CalculateAngle():
+    global X_stam,X_broc,Y_broc,Y_stam
+    DeltaY = 0
+    DeltaX = 0
+    Alpha = 0
+    if (X_stam > X_broc):
+        DeltaX = X_stam - X_broc
+    else:
+        DeltaX = X_broc - X_stam
+    if (Y_stam > Y_broc):
+        DeltaY = Y_stam - Y_broc
+    else:
+        DeltaX = Y_broc - Y_stam
+
+    if (DeltaX != 0 and DeltaY != 0):
+        Alpha = (math.atan(DeltaY / DeltaX) * (180 / 3.1415))
+
+    return Alpha
 
 def WaitForReady():
     global ReadyToWrite

@@ -1,3 +1,4 @@
+import time
 import cv2
 import numpy as np
 import math
@@ -6,12 +7,19 @@ import threading
 
 HOST = '192.168.125.4'
 PORT = 8004
+CONVEYOR_SPEED = 500
+
 Real_X = 0
 Real_Y = 0
 X_stam = 0
 Y_stam = 0
 X_broc = 0
 Y_broc = 0
+X_brocs = []
+Y_brocs = []
+Alpha_brocs = []
+Time_brocs = []
+TimeStamp = 0
 Sem = True
 ReadyToWrite = 0
 RobotConnected = False
@@ -60,16 +68,21 @@ def main() :
             #print(Y_broc)
 
         if(RobotConnected):
-            rInfo = str(Real_X) + str('@') + str(Real_Y)
             if (ReadyToWrite == 1):
-                if Real_X < 565 and Real_X > 100:
-                    print('sending')
-                    message = bytes(str(rInfo), 'utf8')
-                    conn.send(message)
-                    message = ''
-                    ReadyToWrite = 0
-                else:
-                    print('Broccoli out of range')
+                TimeStamp = time.time()
+                Deltats = TimeStamp - Time_brocs[0]
+                Xtime = X_brocs[0] + Deltats * CONVEYOR_SPEED
+                rInfo = str(Xtime) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
+                if Xtime < AANPASSEN and Xtime > AANPASSEN:
+                print('sending')
+                message = bytes(str(rInfo), 'utf8')
+                conn.send(message)
+                message = ''
+                del X_brocs[0]
+                del Y_brocs[0]
+                del Time_brocs[0]
+                del Alpha_brocs[0]
+                ReadyToWrite = 0
 
         k = cv2.waitKey(30)
         if k == 27:
@@ -126,6 +139,17 @@ def BrocVision():
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
                     Real_X = int(X_broc * -2.64 + 1212.84)
                     Real_Y = int(Y_broc * 3.12 - 197.32)
+        if Y_brocs:
+            if abs([Y_brocs[0] - Y_broc) > 5:
+                X_brocs.append(X_broc)
+                Y_brocs.append(Y_broc)
+                Alpha_brocs.append(Alpha)
+                Time_brocs.append(TimeStamp)
+        else:
+            X_brocs.append(X_broc)
+            Y_brocs.append(Y_broc)
+            Alpha_brocs.append(Alpha)
+            Time_brocs.append(TimeStamp)
 
         cv2.imshow('fgbg_broc', mask_broc)
         cv2.imshow('res_broc', res_broc)

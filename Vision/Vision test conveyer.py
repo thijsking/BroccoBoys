@@ -50,14 +50,14 @@ def main() :
         if(RobotConnected):
             if (ReadyToWrite == 1):
                 TimeStamp = time.time()
-                Deltats = TimeStamp - Time_brocs[0]
-                Xtime = X_brocs[0] + Deltats * CONVEYOR_SPEED
+                DeltaTime = TimeStamp - Time_brocs[0]
+                Xtime = X_brocs[0] - DeltaTime * CONVEYOR_SPEED
                 rInfo = str(Xtime) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
-                if Xtime < AANPASSEN and Xtime > AANPASSEN:
-                print('sending')
-                message = bytes(str(rInfo), 'utf8')
-                conn.send(message)
-                message = ''
+                if Xtime > -350:
+                    print('sending')
+                    message = bytes(str(rInfo), 'utf8')
+                    conn.send(message)
+                    message = ''
                 del X_brocs[0]
                 del Y_brocs[0]
                 del Time_brocs[0]
@@ -117,17 +117,17 @@ def BrocVision():
                     X_broc = int(M['m10'] / M['m00'])
                     Y_broc = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
-                    Real_X = int(X_broc * -2.64 + 1212.84)
+                    Real_X = int((640 - X_broc) / 5.783 + 845)
                     Real_Y = int(Y_broc * 3.12 - 197.32)
         if Y_brocs:
             if abs(Y_brocs[0] - Y_broc) > 5:
-                X_brocs.append(X_broc)
-                Y_brocs.append(Y_broc)
+                X_brocs.append(Real_X)
+                Y_brocs.append(Real_Y)
                 Alpha_brocs.append(CalculateAngle())
                 Time_brocs.append(TimeStamp)
         else:
-            X_brocs.append(X_broc)
-            Y_brocs.append(Y_broc)
+            X_brocs.append(Real_X)
+            Y_brocs.append(Real_Y)
             Alpha_brocs.append(CalculateAngle())
             Time_brocs.append(TimeStamp)
 

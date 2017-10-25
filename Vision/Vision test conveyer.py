@@ -19,11 +19,10 @@ X_brocs = []
 Y_brocs = []
 Alpha_brocs = []
 Time_brocs = []
-TimeStamp = 0
 Sem = True
 ReadyToWrite = 0
-RobotConnected = False
-cap = cv2.VideoCapture(1)
+RobotConnected = True
+cap = cv2.VideoCapture(0)
 FrameCounter = 0
 _, Frame = cap.read()
 #cap.set(cv2.CAP_PROP_EXPOSURE,1)
@@ -48,21 +47,33 @@ def main() :
 
     while True :
         if(RobotConnected):
-            if (ReadyToWrite == 1):
+            #print(len(X_brocs))
+            if (ReadyToWrite == 1) and (len(X_brocs) > 0):
+               # print (X_brocs)
+                print("sending function")
                 TimeStamp = time.time()
                 DeltaTime = TimeStamp - Time_brocs[0]
-                Xtime = X_brocs[0] - DeltaTime * CONVEYOR_SPEED
+                print (DeltaTime)
+                Xtime = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
                 rInfo = str(Xtime) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
-                if Xtime > -350:
+                print (rInfo)
+                if Xtime < -350:
+                    del X_brocs[0]
+                    del Y_brocs[0]
+                    del Time_brocs[0]
+                    del Alpha_brocs[0]
+                if Xtime > -350 and Xtime < 800:
                     print('sending')
                     message = bytes(str(rInfo), 'utf8')
                     conn.send(message)
                     message = ''
-                del X_brocs[0]
-                del Y_brocs[0]
-                del Time_brocs[0]
-                del Alpha_brocs[0]
-                ReadyToWrite = 0
+                    del X_brocs[0]
+                    del Y_brocs[0]
+                    del Time_brocs[0]
+                    del Alpha_brocs[0]
+                    ReadyToWrite = 0
+                print(ReadyToWrite)
+               # print(X_brocs)
 
         k = cv2.waitKey(30)
         if k == 27:
@@ -119,16 +130,19 @@ def BrocVision():
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
                     Real_X = int((640 - X_broc) / 5.783 + 845)
                     Real_Y = int(Y_broc * 3.12 - 197.32)
+                    #print(Real_X)
         if Y_brocs:
             if abs(Y_brocs[0] - Y_broc) > 5:
                 X_brocs.append(Real_X)
-                Y_brocs.append(Real_Y)
+                Y_brocs.append(Y_broc)
                 Alpha_brocs.append(CalculateAngle())
+                TimeStamp = time.time()
                 Time_brocs.append(TimeStamp)
         else:
             X_brocs.append(Real_X)
-            Y_brocs.append(Real_Y)
+            Y_brocs.append(Y_broc)
             Alpha_brocs.append(CalculateAngle())
+            TimeStamp = time.time()
             Time_brocs.append(TimeStamp)
 
         cv2.imshow('fgbg_broc', mask_broc)

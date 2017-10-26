@@ -1,16 +1,17 @@
 MODULE Listen
     VAR socketdev sockDev;
     PERS bool getCoord;
+    PERS bool Ready;
     PERS num XPos;
     PERS num YPos;
     PERS num Angle;
     
     PROC Main()
-        CreateSocket;
+        !CreateSocket;
         WHILE (TRUE) DO
            IF getCoord THEN
-            SendData;
-            ReceiceData;
+!            SendData;
+!            ReceiceData;
             getCoord := FALSE;
             TPWrite("false again");
            ENDIF
@@ -41,15 +42,19 @@ MODULE Listen
         Delimiter1 := StrFind(StrReceived,1,"@");
         Delimiter2 := StrFind(StrReceived,1,"$");
         xdata := StrPart(StrReceived,1,Delimiter1-1);
-        TPWrite xdata;
+        !TPWrite xdata;
         ydata := StrPart(StrReceived,Delimiter1+1,(Delimiter2 - Delimiter1) -1);
-        TPWrite ydata;
+        !TPWrite ydata;
         angleData := StrPart(StrReceived, Delimiter2+1, StrLen(StrReceived) - Delimiter2);
-        TPWrite angleData;
+        !TPWrite angleData;
         
         bOK := StrToVal(xdata,XPos);
         bOK := StrToVal(ydata,YPos);
         bOk := StrToVal(angleData, Angle);
+        XPos := XPos - 190;
+        Ready := TRUE;
+        
+        
     ENDPROC
     
      PROC SendData()

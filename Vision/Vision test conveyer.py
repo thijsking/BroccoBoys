@@ -48,32 +48,37 @@ def main() :
     while True :
         if(RobotConnected):
             #print(len(X_brocs))
-            if (ReadyToWrite == 1) and (len(X_brocs) > 0):
-               # print (X_brocs)
-                print("sending function")
-                TimeStamp = time.time()
-                DeltaTime = TimeStamp - Time_brocs[0]
-                print (DeltaTime)
-                Xtime = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
-                rInfo = str(Xtime) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
-                print (rInfo)
-                if Xtime < -350:
-                    del X_brocs[0]
-                    del Y_brocs[0]
-                    del Time_brocs[0]
-                    del Alpha_brocs[0]
-                if Xtime > -350 and Xtime < 800:
-                    print('sending')
-                    message = bytes(str(rInfo), 'utf8')
-                    conn.send(message)
-                    message = ''
-                    del X_brocs[0]
-                    del Y_brocs[0]
-                    del Time_brocs[0]
-                    del Alpha_brocs[0]
-                    ReadyToWrite = 0
-                print(ReadyToWrite)
-               # print(X_brocs)
+            #print(Y_brocs)
+            if (ReadyToWrite == 1) and (len(X_brocs)):
+                if(X_brocs[0] != 0):
+                   # print (X_brocs)
+                    print("sending function")
+                    TimeStamp = time.time()
+                    DeltaTime = TimeStamp - Time_brocs[0]
+                    print (DeltaTime)
+                    Xtime = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
+                    rInfo = str(Xtime) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
+                    print (rInfo)
+                    if Xtime < -100:
+                        del X_brocs[0]
+                        del Y_brocs[0]
+                        del Time_brocs[0]
+                        del Alpha_brocs[0]
+                    if Xtime > -10 and Xtime < 710:
+                        print(X_brocs)
+                        print('sending')
+                        message = bytes(str(rInfo), 'utf8')
+                        conn.send(message)
+                        message = ''
+                        del X_brocs[0]
+                        del Y_brocs[0]
+                        del Time_brocs[0]
+                        del Alpha_brocs[0]
+                        ReadyToWrite = 0
+                        print(X_brocs)
+                        Y_broc = 0
+                   # print(ReadyToWrite)
+                   # print(X_brocs)
 
         k = cv2.waitKey(30)
         if k == 27:
@@ -131,19 +136,22 @@ def BrocVision():
                     Real_X = int((640 - X_broc) / 5.783 + 845)
                     Real_Y = int(Y_broc * 3.12 - 197.32)
                     #print(Real_X)
-        if Y_brocs:
-            if abs(Y_brocs[0] - Y_broc) > 5:
+        if Y_broc != 0:
+            if Y_brocs:
+                if abs((Y_brocs[0] - Y_broc) > 10) and X_broc < 400 :
+                    print("ADDING NA EERSTE")
+                    X_brocs.append(Real_X)
+                    Y_brocs.append(Y_broc)
+                    Alpha_brocs.append(CalculateAngle())
+                    TimeStamp = time.time()
+                    Time_brocs.append(TimeStamp)
+            else:
+                print("ADDING")
                 X_brocs.append(Real_X)
                 Y_brocs.append(Y_broc)
                 Alpha_brocs.append(CalculateAngle())
                 TimeStamp = time.time()
                 Time_brocs.append(TimeStamp)
-        else:
-            X_brocs.append(Real_X)
-            Y_brocs.append(Y_broc)
-            Alpha_brocs.append(CalculateAngle())
-            TimeStamp = time.time()
-            Time_brocs.append(TimeStamp)
 
         cv2.imshow('fgbg_broc', mask_broc)
         cv2.imshow('res_broc', res_broc)
@@ -183,9 +191,9 @@ def StamVision():
                     Y_stam = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_stam, Y_stam), 10, (0, 0, 255), -1)
 
-        cv2.imshow('fgbg_stam', mask_stam)
-        cv2.imshow('res', res_stam)
-        cv2.imshow('Original_ stam', frame)
+        #cv2.imshow('fgbg_stam', mask_stam)
+        #cv2.imshow('res', res_stam)
+        #cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
 
 def CalculateAngle():
@@ -203,7 +211,7 @@ def CalculateAngle():
         DeltaX = Y_broc - Y_stam
 
     if (DeltaX != 0 and DeltaY != 0):
-        Alpha = (math.atan(DeltaY / DeltaX) * (180 / 3.1415))
+        Alpha = int((math.atan(DeltaY / DeltaX) * (180 / 3.1415)))
 
     return Alpha
 

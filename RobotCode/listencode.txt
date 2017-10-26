@@ -7,11 +7,11 @@ MODULE Listen
     PERS num Angle;
     
     PROC Main()
-        CreateSocket;
+        !CreateSocket;
         WHILE (TRUE) DO
            IF getCoord THEN
-            SendData;
-            ReceiceData;
+!            SendData;
+!            ReceiceData;
             getCoord := FALSE;
             TPWrite("false again");
            ENDIF
@@ -51,8 +51,10 @@ MODULE Listen
         bOK := StrToVal(xdata,XPos);
         bOK := StrToVal(ydata,YPos);
         bOk := StrToVal(angleData, Angle);
-        XPos := XPos - 100;
+        XPos := XPos - 190;
         Ready := TRUE;
+        
+        
     ENDPROC
     
      PROC SendData()

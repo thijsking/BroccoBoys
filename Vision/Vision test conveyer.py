@@ -47,8 +47,8 @@ def main() :
 
     while True :
         if(RobotConnected):
-            print(len(X_brocs))
-            print(Y_brocs)
+            #print(len(X_brocs))
+            #print(Y_brocs)
             if (ReadyToWrite == 1) and (len(X_brocs)):
                 if(X_brocs[0] != 0):
                    # print (X_brocs)
@@ -64,7 +64,7 @@ def main() :
                         del Y_brocs[0]
                         del Time_brocs[0]
                         del Alpha_brocs[0]
-                    if Xtime > -100 and Xtime < 600:
+                    if Xtime > -10 and Xtime < 710:
                         print(X_brocs)
                         print('sending')
                         message = bytes(str(rInfo), 'utf8')
@@ -191,9 +191,9 @@ def StamVision():
                     Y_stam = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_stam, Y_stam), 10, (0, 0, 255), -1)
 
-        cv2.imshow('fgbg_stam', mask_stam)
-        cv2.imshow('res', res_stam)
-        cv2.imshow('Original_ stam', frame)
+        #cv2.imshow('fgbg_stam', mask_stam)
+        #cv2.imshow('res', res_stam)
+        #cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
 
 def CalculateAngle():

@@ -45,9 +45,13 @@ def main() :
         ThreadRobotRead = threading.Thread(target=WaitForReady)
         ThreadRobotRead.start()
 
+    LastBrocPos = 0
+    TimeLastBroc = time.time()
     while True :
         if(RobotConnected):
             if (ReadyToWrite == 1) and (len(X_brocs)):
+                if((time.time() - TimeLastBroc) > 10 ):
+                    LastBrocPos = 0
                 if(X_brocs[0] != 0):
                    # print (X_brocs)
                     print("sending function")
@@ -55,27 +59,32 @@ def main() :
                     DeltaTime = TimeStamp - Time_brocs[0]
                     print (DeltaTime)
                     X_Time = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
-                    X_Move = int((18/11) * (2 * X_Time - 325) - (15/11) * math.sqrt(4 * math.pow(X_Time,2) - 1872 * X_Time + 227043))
+                    X_Move = int((2/3) * (2 * X_Time - 117) - (1 / 3) * math.sqrt(4 * math.pow(X_Time,2) - 1872 * X_Time + 238707))
                     rInfo = str(X_Move) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
                     print (rInfo)
+
                     if X_Move < -200:
                         del X_brocs[0]
                         del Y_brocs[0]
                         del Time_brocs[0]
                         del Alpha_brocs[0]
-                    if X_Move > -100 and X_Move < 550:
-                        print(X_brocs)
-                        print('sending')
-                        message = bytes(str(rInfo), 'utf8')
-                        conn.send(message)
-                        message = ''
-                        del X_brocs[0]
-                        del Y_brocs[0]
-                        del Time_brocs[0]
-                        del Alpha_brocs[0]
-                        ReadyToWrite = 0
-                        print(X_brocs)
-                        Y_broc = 0
+
+                    if (abs(LastBrocPos - X_Move) > 600):
+                        if X_Move > -100 and X_Move < 550:
+                            print(X_brocs)
+                            print('sending')
+                            message = bytes(str(rInfo), 'utf8')
+                            conn.send(message)
+                            message = ''
+                            LastBrocPos = X_Move
+                            TimeLastBroc = time.time()
+                            del X_brocs[0]
+                            del Y_brocs[0]
+                            del Time_brocs[0]
+                            del Alpha_brocs[0]
+                            ReadyToWrite = 0
+                            print(X_brocs)
+                            Y_broc = 0
 
         k = cv2.waitKey(30)
         if k == 27:
@@ -131,21 +140,21 @@ def BrocVision():
                     Y_broc = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
                     Real_X = int((640 - X_broc) / 5.783 + 845)
-                    Real_Y = int(Y_broc * 3.12 - 197.32)
-                    #print(Real_X)
+                    Real_Y = int(5 - ((480 - Y_broc) / 2.237))
+                    #print(Real_Y)
         if Y_broc != 0:
             if Y_brocs:
-                if abs((Y_brocs[0] - Y_broc) > 10) and X_broc < 400 :
+                if abs((Y_brocs[0] - Real_Y) > 5) and X_broc < 400 :
                     print("ADDING NA EERSTE")
                     X_brocs.append(Real_X)
-                    Y_brocs.append(Y_broc)
+                    Y_brocs.append(Real_Y)
                     Alpha_brocs.append(CalculateAngle())
                     TimeStamp = time.time()
                     Time_brocs.append(TimeStamp)
             else:
                 print("ADDING")
                 X_brocs.append(Real_X)
-                Y_brocs.append(Y_broc)
+                Y_brocs.append(Real_Y)
                 Alpha_brocs.append(CalculateAngle())
                 TimeStamp = time.time()
                 Time_brocs.append(TimeStamp)

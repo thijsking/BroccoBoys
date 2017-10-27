@@ -47,8 +47,6 @@ def main() :
 
     while True :
         if(RobotConnected):
-            #print(len(X_brocs))
-            #print(Y_brocs)
             if (ReadyToWrite == 1) and (len(X_brocs)):
                 if(X_brocs[0] != 0):
                    # print (X_brocs)
@@ -56,15 +54,16 @@ def main() :
                     TimeStamp = time.time()
                     DeltaTime = TimeStamp - Time_brocs[0]
                     print (DeltaTime)
-                    Xtime = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
-                    rInfo = str(Xtime) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
+                    X_Time = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
+                    X_Move = int((18/11) * (2 * X_Time - 325) - (15/11) * math.sqrt(4 * math.pow(X_Time,2) - 1872 * X_Time + 227043))
+                    rInfo = str(X_Move) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
                     print (rInfo)
-                    if Xtime < -100:
+                    if X_Move < -200:
                         del X_brocs[0]
                         del Y_brocs[0]
                         del Time_brocs[0]
                         del Alpha_brocs[0]
-                    if Xtime > -10 and Xtime < 710:
+                    if X_Move > -100 and X_Move < 550:
                         print(X_brocs)
                         print('sending')
                         message = bytes(str(rInfo), 'utf8')
@@ -77,8 +76,6 @@ def main() :
                         ReadyToWrite = 0
                         print(X_brocs)
                         Y_broc = 0
-                   # print(ReadyToWrite)
-                   # print(X_brocs)
 
         k = cv2.waitKey(30)
         if k == 27:

@@ -22,7 +22,7 @@ Time_brocs = []
 Sem = True
 ReadyToWrite = 0
 RobotConnected = True
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 FrameCounter = 0
 _, Frame = cap.read()
 #cap.set(cv2.CAP_PROP_EXPOSURE,1)
@@ -147,10 +147,12 @@ def BrocVision():
                     Real_X = int((640 - X_broc) / 5.783 + 845)
                     Real_Y = int(5 - ((480 - Y_broc) / 2.237))
                     #print(Real_Y)
-        if Y_broc != 0  and X_broc < 450 and X_broc > 150:
+        if Y_broc != 0  and X_broc < 450 and X_broc > -150:
+            print("BINNEN RANGE")
             if Y_brocs:
                 if abs((Y_brocs[0] - Real_Y) > 5) :
                     print("ADDING NA EERSTE")
+                    print(Y_brocs[0])
                     X_brocs.append(Real_X)
                     Y_brocs.append(Real_Y)
                     Alpha_brocs.append(CalculateAngle())

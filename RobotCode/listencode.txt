@@ -52,7 +52,10 @@ MODULE Listen
         bOK := StrToVal(xdata,XPos);
         bOK := StrToVal(ydata,YPos);
         bOk := StrToVal(angleData, Angle);
-        IF  XPos < 0 AND CanChange THEN
+        IF XPos < -100 AND CanChange THEN
+            XPos := XPos + 30;
+            CanChange := FALSE;
+        ELSEIF  XPos < 0 AND CanChange THEN
             CanChange := FALSE;
         ELSEIF XPos < 200 AND CanChange THEN
             XPos := XPos - 30;

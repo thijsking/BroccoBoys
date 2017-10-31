@@ -25,7 +25,7 @@ Sem = True
 ReadyToWrite = 0
 RobotConnected = True
 TimeBrocDetected = time.time()
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 FrameCounter = 0
 _, Frame = cap.read()
 #cap.set(cv2.CAP_PROP_EXPOSURE,1)
@@ -237,9 +237,7 @@ def CalculateAngle():
 
     if (DeltaX != 0 and DeltaY != 0):
         Alpha = int((math.atan(DeltaY/DeltaX) * 180) / 3.1415)
-        print("DeltaX ", DeltaX)
-        print("DeltaY ", DeltaY)
-        print("Alpha"Alpha)
+        print("Alpha",Alpha)
     return Alpha
 
 def WaitForReady():

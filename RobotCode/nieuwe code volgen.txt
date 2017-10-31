@@ -2,8 +2,8 @@ MODULE MainModule
     !low z is 985
         PERS bool getCoord := TRUE;
         PERS bool Ready := FALSE;
-        PERS num XPos := 418;
-        PERS num YPos := -15;
+        PERS num XPos := 396;
+        PERS num YPos := -33;
         PERS num Angle := 0;
         
 	PROC main()
@@ -12,17 +12,18 @@ MODULE MainModule
         WHILE (TRUE) DO
             WaitUntil Ready;
             Ready := FALSE;
-    		!MoveL [[457.07,-82,-970],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;    !begin laag
+    		!MoveL [[457.07,-82,-994],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z50, tool0;    !begin laag
             MoveL [[XPos,YPos,-875],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v1000,z10,tool0;
-    		!MoveL [[100,-82,-970],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500, z80, tool0;   !einde laag
-            MoveL [[XPos - 100,YPos,-985],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v600,z200,tool0;
-            MoveL [[XPos - 250,YPos,-985],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500,z30,tool0;
+    		!MoveL [[100,-82,-994],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v100, z80, tool0;   !einde laag
+            MoveL [[XPos - 100,YPos,-994],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v600,z200,tool0;
+            MoveL [[XPos - 250,YPos,-994],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v500,z30,tool0;
             SET do_Gripper;
     		MoveJ [[XPos - 250,YPos,-890],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v1000, z150, tool0;   !einde
     		MoveL [[275,380,-889],[0,0.56958,0.821936,0],[0,-2,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v1000, z50, tool0;      !drop
             WaitTime 0.5;
             RESET do_Gripper; 
-    		getCoord := TRUE;		
+    		getCoord := TRUE;
+    		MoveL [[207.17,13.09,-949.98],[0,0.988864,0.148821,0],[0,-1,0,0],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]], v1000, z50, tool0;
         ENDWHILE
         
 	ENDPROC

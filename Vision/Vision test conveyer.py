@@ -21,8 +21,9 @@ Alpha_brocs = []
 Time_brocs = []
 Sem = True
 ReadyToWrite = 0
-RobotConnected = True
-cap = cv2.VideoCapture(1)
+RobotConnected = False
+TimeBrocDetected = time.time()
+cap = cv2.VideoCapture(0)
 FrameCounter = 0
 _, Frame = cap.read()
 #cap.set(cv2.CAP_PROP_EXPOSURE,1)
@@ -56,7 +57,7 @@ def main() :
                             again = False
                             diff = Time_brocs[1] - Time_brocs[0]
                             print(diff)
-                            if diff < 1:
+                            if diff < 0.5:
                                 print("DELETING")
                                 DeleteBroc(1)
                                 again = True
@@ -70,8 +71,8 @@ def main() :
                     #print (rInfo)
 
                     if X_Move < -200:
-                      print("to FAR")
-                      DeleteBroc(0)
+                        print("to FAR")
+                        DeleteBroc(0)
 
                     if X_Move > -150 and X_Move < 550:
                         #print(X_brocs)
@@ -114,7 +115,7 @@ def GetCameraImage():
 
 
 def BrocVision():
-    global Real_X , X_broc, Y_broc, Real_Y
+    global Real_X , X_broc, Y_broc, Real_Y, TimeBrocDetected
 
     while True:
         frame = GetCameraImage()
@@ -137,20 +138,20 @@ def BrocVision():
         if contours_broc:
             cnt = contours_broc[0]
             area = cv2.contourArea(cnt)
-            if area > 5000:
+            if area > 3000:
                 cv2.drawContours(frame, contours_broc, 0, (255, 0, 255), 3)
                 M = cv2.moments(cnt)
-                if area > 5000:
+                if area > 3000:
                     X_broc = int(M['m10'] / M['m00'])
                     Y_broc = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
                     Real_X = int((640 - X_broc) / 5.783 + 845)
                     Real_Y = int(5 - ((480 - Y_broc) / 2.237))
                     #print(Real_Y)
-        if Y_broc != 0  and X_broc < 450 and X_broc > -150:
+        if Y_broc != 0  and X_broc < 450 and X_broc > 150:
             print("BINNEN RANGE")
             if Y_brocs:
-                if abs((Y_brocs[0] - Real_Y) > 5) :
+                if abs((Y_brocs[0] - Real_Y) > 5) or (time.time() - TimeBrocDetected > 0.5) :
                     print("ADDING NA EERSTE")
                     print(Y_brocs[0])
                     X_brocs.append(Real_X)
@@ -158,7 +159,10 @@ def BrocVision():
                     Alpha_brocs.append(CalculateAngle())
                     TimeStamp = time.time()
                     Time_brocs.append(TimeStamp)
+                    TimeBrocDetected = TimeStamp
                     print(Real_X,"::",Real_Y,"::",TimeStamp,"::",X_broc)
+                else:
+                    print("Y same")
             else:
                 print("ADDING")
                 X_brocs.append(Real_X)
@@ -166,6 +170,7 @@ def BrocVision():
                 Alpha_brocs.append(CalculateAngle())
                 TimeStamp = time.time()
                 Time_brocs.append(TimeStamp)
+                TimeBrocDetected = TimeStamp
                 print(Real_X, "::", Real_Y, "::", TimeStamp,"::",X_broc)
 
         cv2.imshow('fgbg_broc', mask_broc)

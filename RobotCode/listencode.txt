@@ -34,8 +34,9 @@ MODULE Listen
         VAR bool bOK;
         VAR num Delimiter1;
         VAR num Delimiter2;
+        VAR bool CanChange := TRUE;
         
-        SocketReceive sockDev\Str:=StrReceived;
+        SocketReceive sockDev\Str:=StrReceived \Time:= 300;
         TPWrite "real data:";
         TPWrite StrReceived;
          
@@ -51,7 +52,17 @@ MODULE Listen
         bOK := StrToVal(xdata,XPos);
         bOK := StrToVal(ydata,YPos);
         bOk := StrToVal(angleData, Angle);
-        XPos := XPos - 130;
+        IF  XPos < 0 AND CanChange THEN
+            CanChange := FALSE;
+        ELSEIF XPos < 200 AND CanChange THEN
+            XPos := XPos - 30;
+            CanChange := FALSE;
+        ELSEIF XPos < 400 AND CanChange THEN
+            XPos := XPos - 75;
+            CanChange := FALSE;
+        ELSE
+            XPos := XPos - 145;
+        ENDIF
         Ready := TRUE;
         
         

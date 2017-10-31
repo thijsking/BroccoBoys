@@ -11,6 +11,8 @@ CONVEYOR_SPEED = 500
 
 Real_X = 0
 Real_Y = 0
+Real_StamX = 0
+Real_StamY = 0
 X_stam = 0
 Y_stam = 0
 X_broc = 0
@@ -23,7 +25,7 @@ Sem = True
 ReadyToWrite = 0
 RobotConnected = False
 TimeBrocDetected = time.time()
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 FrameCounter = 0
 _, Frame = cap.read()
 #cap.set(cv2.CAP_PROP_EXPOSURE,1)
@@ -122,13 +124,13 @@ def BrocVision():
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
         hsv = cv2.medianBlur(hsv, 11)
 
-        lower_red_broc = np.array([0, 197, 0])
-        upper_red_broc = np.array([38, 255, 208])
+        lower_red_broc = np.array([0, 210, 0])
+        upper_red_broc = np.array([38, 255, 192])
         mask_broc = cv2.inRange(hsv, lower_red_broc, upper_red_broc)
         res_broc = cv2.bitwise_and(frame, frame, mask=mask_broc)
 
         kernel = np.ones((5, 5), np.uint8)
-        mask_broc = cv2.dilate(mask_broc, kernel, iterations=1)
+        mask_broc = cv2.dilate(mask_broc, kernel, iterations=3)
         mask_broc = cv2.erode(mask_broc, kernel, iterations=7)
         mask_broc = cv2.dilate(mask_broc, kernel, iterations=2)
         mask_broc = cv2.erode(mask_broc, kernel, iterations=5)
@@ -179,14 +181,14 @@ def BrocVision():
         k = cv2.waitKey(30)
 
 def StamVision():
-    global X_stam, Y_stam
+    global X_stam, Y_stam, Real_StamX, Real_StamY
 
     while True:
         frame = GetCameraImage()
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
         hsv = cv2.medianBlur(hsv, 11)
 
-        lower_red_stam = np.array([0, 0, 231])
+        lower_red_stam = np.array([0, 0, 201])
         upper_red_stam = np.array([31, 255, 255])
         mask_stam = cv2.inRange(hsv, lower_red_stam, upper_red_stam)
         res_stam = cv2.bitwise_and(frame, frame, mask=mask_stam)
@@ -209,30 +211,35 @@ def StamVision():
                     box = np.int0(box)
                     X_stam = int(M['m10'] / M['m00'])
                     Y_stam = int(M['m01'] / M['m00'])
+                    Real_StamX = int((640 - X_stam) / 5.783 + 845)
+                    Real_StamY = int(5 - ((480 - Y_stam) / 2.237))
                     cv2.circle(frame, (X_stam, Y_stam), 10, (0, 0, 255), -1)
 
         #cv2.imshow('fgbg_stam', mask_stam)
         #cv2.imshow('res', res_stam)
-        #cv2.imshow('Original_ stam', frame)
+        cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
 
 def CalculateAngle():
-    global X_stam,X_broc,Y_broc,Y_stam
+    global Real_X, Real_Y, Real_StamY, Real_StamX
     DeltaY = 0
     DeltaX = 0
     Alpha = 0
-    if (X_stam > X_broc):
-        DeltaX = X_stam - X_broc
+    if (Real_X < Real_StamX):
+        DeltaX = Real_StamX - Real_X
     else:
-        DeltaX = X_broc - X_stam
-    if (Y_stam > Y_broc):
-        DeltaY = Y_stam - Y_broc
+        DeltaX = Real_X - Real_StamX
+
+    if (Real_StamY > Real_Y):
+        DeltaY = Real_StamY - Real_Y
     else:
-        DeltaX = Y_broc - Y_stam
+        DeltaY = Real_Y - Real_StamY
 
     if (DeltaX != 0 and DeltaY != 0):
-        Alpha = int((math.atan(DeltaY / DeltaX) * (180 / 3.1415)))
-
+        Alpha = int((math.atan(DeltaY/DeltaX) * 180) / 3.1415)
+        print("DeltaX ", DeltaX)
+        print("DeltaY ", DeltaY)
+        print("Alpha"Alpha)
     return Alpha
 
 def WaitForReady():

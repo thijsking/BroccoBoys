@@ -9,6 +9,8 @@ HOST = '192.168.125.4'
 PORT = 8004
 CONVEYOR_SPEED = 500
 
+Stam_Area = 0
+Broc_Area = 0
 Real_X = 0
 Real_Y = 0
 Real_StamX = 0
@@ -50,9 +52,8 @@ def main() :
 
     while True :
         if(RobotConnected):
-            if (ReadyToWrite == 1) and (len(X_brocs)):
+            if (ReadyToWrite == 1) and (len(X_brocs) > 0) and (len(Time_brocs) > 0):
                 if(X_brocs[0] != 0):
-                    #print("sending function")
                     if len(Time_brocs) > 1:
                         again = True
                         while(again and (len(Time_brocs) > 1)):
@@ -64,21 +65,20 @@ def main() :
                                 DeleteBroc(1)
                                 again = True
 
+
+
                     TimeStamp = time.time()
                     DeltaTime = TimeStamp - Time_brocs[0]
-                    #print (DeltaTime)
                     X_Time = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
                     X_Move = int((1/3)*(4 * X_Time - 275) - (2/3)*math.sqrt(math.pow(X_Time,2) - 550 * X_Time + 75772))
                     rInfo = str(X_Move) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
-                    #print (rInfo)
 
                     if X_Move < -200:
                         print("to FAR")
                         DeleteBroc(0)
 
                     if X_Move > -150 and X_Move < 550:
-                        #print(X_brocs)
-                        print('sending')
+                        print('sending ', rInfo)
                         message = bytes(str(rInfo), 'utf8')
                         conn.send(message)
                         message = ''
@@ -117,7 +117,7 @@ def GetCameraImage():
 
 
 def BrocVision():
-    global Real_X , X_broc, Y_broc, Real_Y, TimeBrocDetected
+    global Real_X , X_broc, Y_broc, Real_Y, TimeBrocDetected, Broc_Area, Stam_Area, Real_StamY, Real_StamX
 
     while True:
         frame = GetCameraImage()
@@ -139,19 +139,32 @@ def BrocVision():
         _, contours_broc, hierarchy_broc = cv2.findContours(mask_broc, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours_broc:
             cnt = contours_broc[0]
-            area = cv2.contourArea(cnt)
-            if area > 3000:
+            Broc_Area = cv2.contourArea(cnt)
+            if Broc_Area > 3000:
                 cv2.drawContours(frame, contours_broc, 0, (255, 0, 255), 3)
                 M = cv2.moments(cnt)
-                if area > 3000:
+                if Broc_Area > 3000:
                     X_broc = int(M['m10'] / M['m00'])
                     Y_broc = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
                     Real_X = int((640 - X_broc) / 5.783 + 845)
                     Real_Y = int(5 - ((480 - Y_broc) / 2.237))
-                    #print(Real_Y)
+
+            if(Broc_Area < 3000 and Stam_Area > Broc_Area):
+                print("ondersteboven")
+                if(time.time() - TimeBrocDetected > 0.5):
+                    print("STAMX", Real_StamX)
+                    print("STAMY", Real_StamY)
+                    X_brocs.append(Real_StamX)
+                    Y_brocs.append(Real_StamY)
+                    Alpha_brocs.append(0)
+                    TimeStamp = time.time()
+                    Time_brocs.append(TimeStamp)
+                    TimeBrocDetected = TimeStamp
+                    print("ADDED UP SIDE DOWN")
+                    print(Real_X, "::", Real_Y, "::", TimeStamp, "::", X_broc)
         if Y_broc != 0  and X_broc < 450 and X_broc > 150:
-            print("BINNEN RANGE")
+            #print("BINNEN RANGE")
             if Y_brocs:
                 if abs((Y_brocs[0] - Real_Y) > 5) or (time.time() - TimeBrocDetected > 0.5) :
                     print("ADDING NA EERSTE")
@@ -181,7 +194,7 @@ def BrocVision():
         k = cv2.waitKey(30)
 
 def StamVision():
-    global X_stam, Y_stam, Real_StamX, Real_StamY
+    global X_stam, Y_stam, Real_StamX, Real_StamY, Stam_Area
 
     while True:
         frame = GetCameraImage()
@@ -201,11 +214,11 @@ def StamVision():
         _, contours_stam, hierarchy_stam = cv2.findContours(mask_stam, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours_stam:
             cnt = contours_stam[0]
-            area = cv2.contourArea(cnt)
-            if area > 3000:
+            Stam_Area = cv2.contourArea(cnt)
+            if Stam_Area > 3000:
                 cv2.drawContours(frame, contours_stam, -1, (0, 255, 255), 3)
                 M = cv2.moments(cnt)
-                if area > 3000:
+                if Stam_Area > 3000:
                     rect = cv2.minAreaRect(cnt)
                     box = cv2.boxPoints(rect)
                     box = np.int0(box)
@@ -217,7 +230,7 @@ def StamVision():
 
         #cv2.imshow('fgbg_stam', mask_stam)
         #cv2.imshow('res', res_stam)
-        cv2.imshow('Original_ stam', frame)
+        #cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
 
 def CalculateAngle():
@@ -240,7 +253,7 @@ def CalculateAngle():
         Alpha = int((math.atan(DeltaY / DeltaX) * 180) / 3.1415)
         # print("DeltaX ", DeltaX)
         # print("DeltaY ", DeltaY)
-        # print("Alpha",Alpha)
+        print("Alpha",Alpha)
         if (Alpha > 65):
             ReturnAlpha = 0
 

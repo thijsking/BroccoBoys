@@ -50,7 +50,7 @@ def main() :
 
     while True :
         if(RobotConnected):
-            if (ReadyToWrite == 1) and (len(X_brocs)):
+            if (ReadyToWrite == 1) and (len(X_brocs) and (len(Time_brocs))):
                 if(X_brocs[0] != 0):
                     if len(Time_brocs) > 1:
                         again = True

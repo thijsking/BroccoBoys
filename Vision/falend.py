@@ -61,7 +61,7 @@ def main() :
                             diff = Time_brocs[1] - Time_brocs[0]
                             print(diff)
                             if diff < 0.5:
-                                print("DELETING")
+                                #print("DELETING")
                                 DeleteBroc(1)
                                 again = True
 
@@ -100,7 +100,7 @@ def DeleteBroc(index):
         del Y_brocs[index]
         del Time_brocs[index]
         del Alpha_brocs[index]
-        print("deleting index ", index )
+        #print("deleting index ", index )
 
 def GetCameraImage():
     global Sem, cap, FrameCounter, Frame
@@ -117,7 +117,7 @@ def GetCameraImage():
 
 
 def BrocVision():
-    global Real_X , X_broc, Y_broc, Real_Y, TimeBrocDetected, Broc_Area, Stam_Area, Real_StamY, Real_StamX
+    global Real_X , X_broc, Y_broc, Real_Y, TimeBrocDetected, Broc_Area, Stam_Area, Real_StamY, Real_StamX, X_stam
 
     while True:
         frame = GetCameraImage()
@@ -140,34 +140,37 @@ def BrocVision():
         if contours_broc:
             cnt = contours_broc[0]
             Broc_Area = cv2.contourArea(cnt)
-            if Broc_Area > 3000:
+            print("broc area ", Broc_Area)
+            if Broc_Area > 5000:
                 cv2.drawContours(frame, contours_broc, 0, (255, 0, 255), 3)
                 M = cv2.moments(cnt)
-                if Broc_Area > 3000:
+                if Broc_Area > 5000:
                     X_broc = int(M['m10'] / M['m00'])
                     Y_broc = int(M['m01'] / M['m00'])
                     cv2.circle(frame, (X_broc, Y_broc), 10, (0, 0, 255), -1)
                     Real_X = int((640 - X_broc) / 5.783 + 845)
                     Real_Y = int(5 - ((480 - Y_broc) / 2.237))
 
-            if(Broc_Area < 3000 and Stam_Area > Broc_Area):
-                print("ondersteboven")
-                if(time.time() - TimeBrocDetected > 0.5):
-                    print("STAMX", Real_StamX)
-                    print("STAMY", Real_StamY)
-                    X_brocs.append(Real_StamX)
-                    Y_brocs.append(Real_StamY)
-                    Alpha_brocs.append(0)
-                    TimeStamp = time.time()
-                    Time_brocs.append(TimeStamp)
-                    TimeBrocDetected = TimeStamp
-                    print("ADDED UP SIDE DOWN")
-                    print(Real_X, "::", Real_Y, "::", TimeStamp, "::", X_broc)
+
+            if(Broc_Area < 5000 and Stam_Area > Broc_Area):
+                if X_stam < 450 and X_stam > 150:
+                    print("ondersteboven")
+                    if(time.time() - TimeBrocDetected > 0.5):
+                        print("STAMX", Real_StamX)
+                        print("STAMY", Real_StamY)
+                        X_brocs.append(Real_StamX)
+                        Y_brocs.append(Real_StamY)
+                        Alpha_brocs.append(0)
+                        TimeStamp = time.time()
+                        Time_brocs.append(TimeStamp)
+                        TimeBrocDetected = TimeStamp
+                        print("ADDED UP SIDE DOWN")
+                        print(Real_StamX, "::", Real_StamY, "::", TimeStamp)
         if Y_broc != 0  and X_broc < 450 and X_broc > 150:
             #print("BINNEN RANGE")
             if Y_brocs:
                 if abs((Y_brocs[0] - Real_Y) > 5) or (time.time() - TimeBrocDetected > 0.5) :
-                    print("ADDING NA EERSTE")
+                   #print("ADDING NA EERSTE")
                     print(Y_brocs[0])
                     X_brocs.append(Real_X)
                     Y_brocs.append(Real_Y)
@@ -176,10 +179,10 @@ def BrocVision():
                     Time_brocs.append(TimeStamp)
                     TimeBrocDetected = TimeStamp
                     print(Real_X,"::",Real_Y,"::",TimeStamp,"::",X_broc)
-                else:
-                    print("Y same")
+                #else:
+                    #print("Y same")
             else:
-                print("ADDING")
+               # print("ADDING")
                 X_brocs.append(Real_X)
                 Y_brocs.append(Real_Y)
                 Alpha_brocs.append(CalculateAngle())
@@ -188,8 +191,8 @@ def BrocVision():
                 TimeBrocDetected = TimeStamp
                 print(Real_X, "::", Real_Y, "::", TimeStamp,"::",X_broc)
 
-        cv2.imshow('fgbg_broc', mask_broc)
-        cv2.imshow('res_broc', res_broc)
+        #cv2.imshow('fgbg_broc', mask_broc)
+        #cv2.imshow('res_broc', res_broc)
         cv2.imshow('Original_ broc', frame)
         k = cv2.waitKey(30)
 
@@ -215,6 +218,7 @@ def StamVision():
         if contours_stam:
             cnt = contours_stam[0]
             Stam_Area = cv2.contourArea(cnt)
+            print ("Area ", Stam_Area)
             if Stam_Area > 3000:
                 cv2.drawContours(frame, contours_stam, -1, (0, 255, 255), 3)
                 M = cv2.moments(cnt)
@@ -226,11 +230,13 @@ def StamVision():
                     Y_stam = int(M['m01'] / M['m00'])
                     Real_StamX = int((640 - X_stam) / 5.783 + 845)
                     Real_StamY = int(5 - ((480 - Y_stam) / 2.237))
+                    print("X_stam: ", X_stam, " -> ", Real_StamX)
+                    print("y_stam: ", Y_stam, " -> ", Real_StamY)
                     cv2.circle(frame, (X_stam, Y_stam), 10, (0, 0, 255), -1)
 
         #cv2.imshow('fgbg_stam', mask_stam)
         #cv2.imshow('res', res_stam)
-        #cv2.imshow('Original_ stam', frame)
+        cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
 
 def CalculateAngle():

@@ -52,7 +52,6 @@ def main() :
         if(RobotConnected):
             if (ReadyToWrite == 1) and (len(X_brocs)):
                 if(X_brocs[0] != 0):
-                    #print("sending function")
                     if len(Time_brocs) > 1:
                         again = True
                         while(again and (len(Time_brocs) > 1)):
@@ -60,29 +59,25 @@ def main() :
                             diff = Time_brocs[1] - Time_brocs[0]
                             print(diff)
                             if diff < 0.5:
-                                print("DELETING")
+                                print("To close")
                                 DeleteBroc(1)
                                 again = True
 
                     TimeStamp = time.time()
                     DeltaTime = TimeStamp - Time_brocs[0]
-                    #print (DeltaTime)
                     X_Time = int(X_brocs[0] - DeltaTime * CONVEYOR_SPEED)
                     X_Move = int((1/3)*(4 * X_Time - 275) - (2/3)*math.sqrt(math.pow(X_Time,2) - 550 * X_Time + 75772))
                     rInfo = str(X_Move) + str('@') + str(Y_brocs[0]) + str('$') + str(Alpha_brocs[0])
-                    #print (rInfo)
 
                     if X_Move < -200:
                         print("to FAR")
                         DeleteBroc(0)
 
                     if X_Move > -150 and X_Move < 550:
-                        #print(X_brocs)
-                        print('sending')
+                        print('Sending ', rInfo)
                         message = bytes(str(rInfo), 'utf8')
                         conn.send(message)
                         message = ''
-                        #DeleteBroc(0)
                         ReadyToWrite = 0
                         print(X_brocs)
                         Y_broc = 0
@@ -100,7 +95,7 @@ def DeleteBroc(index):
         del Y_brocs[index]
         del Time_brocs[index]
         del Alpha_brocs[index]
-        print("deleting index ", index )
+        #print("deleting index ", index )
 
 def GetCameraImage():
     global Sem, cap, FrameCounter, Frame
@@ -151,10 +146,9 @@ def BrocVision():
                     Real_Y = int(5 - ((480 - Y_broc) / 2.237))
                     #print(Real_Y)
         if Y_broc != 0  and X_broc < 450 and X_broc > 150:
-            print("BINNEN RANGE")
             if Y_brocs:
                 if abs((Y_brocs[0] - Real_Y) > 5) or (time.time() - TimeBrocDetected > 0.5) :
-                    print("ADDING NA EERSTE")
+                    print("Adding after first broccoli")
                     print(Y_brocs[0])
                     X_brocs.append(Real_X)
                     Y_brocs.append(Real_Y)
@@ -164,9 +158,9 @@ def BrocVision():
                     TimeBrocDetected = TimeStamp
                     print(Real_X,"::",Real_Y,"::",TimeStamp,"::",X_broc)
                 else:
-                    print("Y same")
+                    print("Y is the same, so don't add")
             else:
-                print("ADDING")
+                print("Adding broccoli")
                 X_brocs.append(Real_X)
                 Y_brocs.append(Real_Y)
                 Alpha_brocs.append(CalculateAngle())
@@ -217,7 +211,7 @@ def StamVision():
 
         #cv2.imshow('fgbg_stam', mask_stam)
         #cv2.imshow('res', res_stam)
-        cv2.imshow('Original_ stam', frame)
+        #cv2.imshow('Original_ stam', frame)
         k = cv2.waitKey(30)
 
 def CalculateAngle():
@@ -238,9 +232,7 @@ def CalculateAngle():
 
     if (DeltaX != 0 and DeltaY != 0):
         Alpha = int((math.atan(DeltaY / DeltaX) * 180) / 3.1415)
-        # print("DeltaX ", DeltaX)
-        # print("DeltaY ", DeltaY)
-        # print("Alpha",Alpha)
+        print("The angle of the broccoli is ",Alpha)
         if (Alpha > 65):
             ReturnAlpha = 0
 
@@ -251,7 +243,6 @@ def WaitForReady():
     global conn
     print('entered function')
     while True:
-        # print('reading check :',ReadyToWrite)
         if (ReadyToWrite == 0):
             received = conn.recv(256)
             print (received.decode())
